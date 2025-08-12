@@ -1,0 +1,22 @@
+{
+  "Hass": {
+    "Sensor": "switch.3dprinter",
+    "RequiredState": "off"
+  },
+  "Wled": {
+    "Url": "http://192.168.178.114/json",
+    "Count": 35,
+    "Start": 5,
+    "MinutesPerLed": 2,
+    "Brightness": 4
+  },
+  "Weather": {
+    "Longitude": 9.95,
+    "Latitude": 53.63,
+    "Delay": "00:02:00"
+  },
+  "OperationTime": {
+    "FromTime": "06:00:00",
+    "ToTime": "22:00:00"
+  }
+}
