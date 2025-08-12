@@ -1,6 +1,7 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using GassiMeter;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 internal static class Program
 {
@@ -25,6 +26,13 @@ internal static class Program
     private static ServiceProvider CreateServiceProvider()
     {
         var services = new ServiceCollection();
+        
+        services.AddLogging(builder =>
+        {
+            builder.AddConsole();
+            builder.SetMinimumLevel(LogLevel.Information);
+        });
+        
         services.AddSingleton(FromJson<Config>("config.json")); 
         services.AddSingleton(FromJson<Secrets>("secrets.json"));
         services.AddScoped<Hass>();

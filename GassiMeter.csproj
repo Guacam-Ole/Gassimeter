@@ -9,6 +9,8 @@
 
     <ItemGroup>
       <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.8" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.8" />
       <PackageReference Include="WLED" Version="2.0.54" />
     </ItemGroup>
 

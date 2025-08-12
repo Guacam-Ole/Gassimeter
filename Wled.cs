@@ -2,6 +2,7 @@ using System.Text;
 using System.Drawing;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Logging;
 
 namespace GassiMeter;
 
@@ -9,16 +10,18 @@ public class Wled
 {
     private readonly Config _config;
     private readonly Rest _rest;
+    private readonly ILogger<Wled> _logger;
 
-    public Wled(Config config, Rest rest)
+    public Wled(Config config, Rest rest, ILogger<Wled> logger)
     {
         _config = config;
         _rest = rest;
+        _logger = logger;
     }
 
     public async Task TurnOn()
     {
-        Console.WriteLine($"💡 Turning WLED on with brightness '{_config.Wled.Brightness}'");
+        _logger.LogInformation("💡 Turning WLED on with brightness '{Brightness}'", _config.Wled.Brightness);
         var payload = "{\"on\":true,\"bri\":" + _config.Wled.Brightness + "} ";
         await PostPayload(payload);
     }
@@ -28,13 +31,13 @@ public class Wled
         await ClearAllLeds();
         const string payload = "{\"off\":true } ";
         await PostPayload(payload);
-        Console.WriteLine("🔌 LEDs Turned Off");
+        _logger.LogInformation("🔌 LEDs Turned Off");
     }
 
 
     public async Task ClearAllLeds()
     {
-        Console.WriteLine($"🧩 Clearing '{_config.Wled.Count}' LEDs");
+        _logger.LogInformation("🧩 Clearing '{Count}' LEDs", _config.Wled.Count);
         var payload = "{\"seg\":{\"i\":[";
         for (var i = 1; i <= _config.Wled.Count; i++)
         {
@@ -151,7 +154,7 @@ public class Wled
 
         if (aggreatedValues.Select(q => q.Value).Sum() <= 0.3)
         {
-            Console.WriteLine("☀️ So Sunny!");
+            _logger.LogInformation("☀️ So Sunny!");
         }
 
         payload = payload[..^1];

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace GassiMeter;
 
 public class Looper
@@ -7,15 +9,17 @@ public class Looper
     private readonly Hass _hass;
     private readonly History _history;
     private readonly Config _config;
+    private readonly ILogger<Looper> _logger;
 
     public Looper(OpenWeather
-        openWeather, Wled wled, Hass hass, History history, Config config)
+        openWeather, Wled wled, Hass hass, History history, Config config, ILogger<Looper> logger)
     {
         _openWeather = openWeather;
         _wled = wled;
         _hass = hass;
         _history = history;
         _config = config;
+        _logger = logger;
     }
 
     private async Task InitDisplay()
@@ -26,8 +30,7 @@ public class Looper
 
         var allEntries = new Dictionary<int, double>();
         var state = await _wled.GetStatus<WledEntity>();
-        Console.WriteLine(
-            $"💡 WLED Status: IsOn:'{state?.StateEntity.IsOn}', Brightness: '{state?.StateEntity.Brightness}'");
+        _logger.LogInformation("💡 WLED Status: IsOn:'{IsOn}', Brightness: '{Brightness}'", state?.StateEntity.IsOn, state?.StateEntity.Brightness);
         for (var i = 0; i <= 60; i++)
         {
             double value = i % 10 == 0 ? 10 : 0;
@@ -61,11 +64,10 @@ public class Looper
         if (hassSensor != null)
         {
             var hassSensorState = await _hass.GetSensorState(hassSensor);
-            Console.WriteLine(
-                $"🏠 Home Assistant sensor '{hassSensor}' state: '{hassSensorState}', required: '{_config.Hass?.RequiredState}'");
+            _logger.LogInformation("🏠 Home Assistant sensor '{Sensor}' state: '{State}', required: '{Required}'", hassSensor, hassSensorState, _config.Hass?.RequiredState);
             if (hassSensorState != _config.Hass?.RequiredState)
             {
-                Console.WriteLine($"❌ Wrong state for Home assistant Sensor '{hassSensor}'. Will not continue");
+                _logger.LogWarning("❌ Wrong state for Home assistant Sensor '{Sensor}'. Will not continue", hassSensor);
                 return;
             }
         }
@@ -75,25 +77,24 @@ public class Looper
         {
             if (DateTime.Now < DateTime.Today.Add(_config.OperationTime.FromTime))
             {
-                Console.WriteLine($"😴 Still too early. Will not start before '{_config.OperationTime.FromTime}'");
+                _logger.LogInformation("😴 Still too early. Will not start before '{FromTime}'", _config.OperationTime.FromTime);
                 await TurnWledOffIfOn();
                 return;
             }
 
             if (DateTime.Now > DateTime.Today.Add(_config.OperationTime.ToTime))
             {
-                Console.WriteLine($"🌙 Too late. Will not start before '{_config.OperationTime.FromTime}' tomorrow");
+                _logger.LogInformation("🌙 Too late. Will not start before '{FromTime}' tomorrow", _config.OperationTime.FromTime);
                 await TurnWledOffIfOn();
                 return;
             }
         }
 
-        Console.WriteLine(
-            $"🌤️ Fetching weather data for coordinates: '{_config.Weather.Latitude}', '{_config.Weather.Longitude}'");
+        _logger.LogInformation("🌤️ Fetching weather data for coordinates: '{Latitude}', '{Longitude}'", _config.Weather.Latitude, _config.Weather.Longitude);
         var minuteValues = await _openWeather.GetMinuteValues();
         if (minuteValues?.Minutely == null)
         {
-            Console.WriteLine("🌦️ Could not receive weather data. Exiting");
+            _logger.LogWarning("🌦️ Could not receive weather data. Exiting");
             return;
         }
 
@@ -110,28 +111,28 @@ public class Looper
         }
 
         // send to Wled
-        Console.WriteLine($"🎨 Updating '{allEntries.Count}' LED values");
+        _logger.LogInformation("🎨 Updating '{Count}' LED values", allEntries.Count);
         await _wled.TurnOn();
         await _wled.SetLedsByValueJson(allEntries);
-        Console.WriteLine($"✨ LED update complete!");
+        _logger.LogInformation("✨ LED update complete!");
     }
 
     public async Task Loop()
     {
-        Console.WriteLine("🐕🦴️ Gassimeter started! 🌞");
+        _logger.LogInformation("🐕🦴️ Gassimeter started! 🌞");
         await InitDisplay();
 
         while (true)
         {
             try
             {
-                Console.WriteLine($"🔄 Starting Loop run at '{DateTime.Now}'");
+                _logger.LogInformation("🔄 Starting Loop run at '{Time}'", DateTime.Now);
                 await DisplayData();
                 Thread.Sleep(_config.Weather.Delay);
             }
             catch (Exception e)
             {
-                Console.WriteLine($"💥 Error in main loop: '{e}'");
+                _logger.LogError(e, "💥 Error in main loop");
                 // Let's hope this fixes itself in 2 min (sometimes wled gets issues)
             }
         }

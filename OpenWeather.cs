@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace GassiMeter;
 
 public class OpenWeather
@@ -5,12 +7,14 @@ public class OpenWeather
     private readonly Rest _rest;
     private readonly Secrets _secrets;
     private readonly Config _config;
+    private readonly ILogger<OpenWeather> _logger;
 
-    public OpenWeather(Rest rest, Secrets secrets, Config config)
+    public OpenWeather(Rest rest, Secrets secrets, Config config, ILogger<OpenWeather> logger)
     {
         _rest = rest;
         _secrets = secrets;
         _config = config;
+        _logger = logger;
     }
 
 
@@ -24,12 +28,12 @@ public class OpenWeather
         
         if (result?.Minutely != null)
         {
-            Console.WriteLine($"☁️ Successfully fetched '{result.Minutely.Count}' minute weather forecasts");
+            _logger.LogInformation("☁️ Successfully fetched '{Count}' minute weather forecasts", result.Minutely.Count);
             result.Minutely.ForEach(q=>q.Time=q.TimeStamp.ToDateTime());
         }
         else
         {
-            Console.WriteLine("🌩️ No weather minute data received from OpenWeather API");
+            _logger.LogWarning("🌩️ No weather minute data received from OpenWeather API");
         }
         
         return result;
