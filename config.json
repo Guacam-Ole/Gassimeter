@@ -8,15 +8,49 @@
     "Count": 35,
     "Start": 5,
     "MinutesPerLed": 2,
-    "Brightness": 4
+    "Brightness": 4,
+    "Colors": [
+      {
+        "ColorCode": "000000", // Black - missing data
+        "RainAmount": -1
+      },
+      {
+        "ColorCode": "32FF32", // Green - sunny
+        "RainAmount": 0
+      },
+      {
+        "ColorCode": "00B4FF", // Light Blue - drizzle
+        "RainAmount": 0.5
+      },
+      {
+        "ColorCode": "0032C8", // Blue - light rain
+        "RainAmount": 2.5
+      },
+      {
+        "ColorCode": "FF3296", // Pink - heavy rain
+        "RainAmount": 5
+      },
+      {
+        "ColorCode": "DC1414", // Red - very heavy rain
+        "RainAmount": 10
+      },
+      {
+        "ColorCode": "FFC800", // Orange - extreme weather
+        "RainAmount": 20
+      }
+    ]
   },
   "Weather": {
     "Longitude": 9.95,
     "Latitude": 53.63,
     "Delay": "00:02:00"
   },
+  // Lat.: 50°17'N / Lon.: 89°1'W 
+  //  63°53'N / Lon.: 18°8'W / Alt
+  //  21°45'N / Lon.: 122°30'E
+  // 41.8305669° N, 0.7694755° W
   "OperationTime": {
     "FromTime": "06:00:00",
-    "ToTime": "22:00:00"
+    "ToTime": "23:45:00"
   }
 }

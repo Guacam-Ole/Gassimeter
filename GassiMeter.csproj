@@ -12,4 +12,15 @@
       <PackageReference Include="WLED" Version="2.0.54" />
     </ItemGroup>
 
+    <ItemGroup>
+      <None Remove="config.json" />
+      <Content Include="config.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+      <None Remove="secrets.json" />
+      <Content Include="secrets.json">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
+
 </Project>

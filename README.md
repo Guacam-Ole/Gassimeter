@@ -39,6 +39,19 @@ The application includes a `config.json` file that needs to be configured with y
 - `Start`: Starting LED index (default: 0)
 - `MinutesPerLed`: Minutes represented per LED (default: 2)
 - `Brightness`: LED brightness level 0-255 (default: 128)
+- `Colors`: Array of color-to-rain-amount mappings for LED display
+  - `ColorCode`: 6-character hex color code (e.g., "32FF32" for green)
+  - `RainAmount`: Rain amount in mm/hour that triggers this color
+  - **Required values**: Must include entries for `RainAmount: -1` (missing data) and `RainAmount: 0` (no rain)
+  - Colors are interpolated between defined values for smooth gradients
+  - Example color scheme:
+    - `-1`: "000000" (Black - missing historical data)
+    - `0`: "32FF32" (Green - sunny/no rain)
+    - `0.5`: "00B4FF" (Light Blue - drizzle)
+    - `2.5`: "0032C8" (Blue - light rain)
+    - `5`: "FF3296" (Pink - heavy rain/thunderstorm)
+    - `10`: "DC1414" (Red - very heavy rain)
+    - `20`: "FFC800" (Orange - extreme weather)
 
 **OperationTime (Optional)**
 - `FromTime`: Start time for operation (format: "HH:MM:SS", e.g., "06:00:00")

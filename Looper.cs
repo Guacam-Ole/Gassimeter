@@ -118,7 +118,7 @@ public class Looper
 
     public async Task Loop()
     {
-        Console.WriteLine("🚀 Gassimeter started!");
+        Console.WriteLine("🐕🦴️ Gassimeter started! 🌞");
         await InitDisplay();
 
         while (true)

@@ -9,13 +9,6 @@ public class Wled
 {
     private readonly Config _config;
     private readonly Rest _rest;
-    private const string ColorNiesel = "00B4FF";
-    private const string ColorRegen = "0032C8";
-    private const string ColorGewitter = "FF3296";
-    private const string ColorSonne = "32FF32";
-    private const string ColorHamburgerWetter = "DC1414";
-    private const string ColorNope = "FFC800";
-
 
     public Wled(Config config, Rest rest)
     {
@@ -26,7 +19,7 @@ public class Wled
     public async Task TurnOn()
     {
         Console.WriteLine($"💡 Turning WLED on with brightness '{_config.Wled.Brightness}'");
-        var payload = "{\"on\":true,\"bri\":"+_config.Wled.Brightness+"} ";
+        var payload = "{\"on\":true,\"bri\":" + _config.Wled.Brightness + "} ";
         await PostPayload(payload);
     }
 
@@ -34,8 +27,7 @@ public class Wled
     {
         await ClearAllLeds();
         const string payload = "{\"off\":true } ";
-        await PostPayload(payload)
-            ;
+        await PostPayload(payload);
         Console.WriteLine("🔌 LEDs Turned Off");
     }
 
@@ -86,7 +78,17 @@ public class Wled
         return ledIndex;
     }
 
-    private static string CalcGradientColor(Color minColor, double minValue, Color maxColor, double maxValue, double value)
+    private static Color HexToColor(string hex)
+    {
+        var r = Convert.ToByte(hex[..2], 16);
+        var g = Convert.ToByte(hex[2..4], 16);
+        var b = Convert.ToByte(hex[4..6], 16);
+
+        return Color.FromArgb(r, g, b);
+    }
+
+    private static string CalcGradientColor(Color minColor, double minValue, Color maxColor, double maxValue,
+        double value)
     {
         var t = (value - minValue) / (maxValue - minValue);
         var red = (int)(minColor.R + t * (maxColor.R - minColor.R));
@@ -103,35 +105,23 @@ public class Wled
                 // Missing history value
                 return "000000";
             case 0:
-                // Sonne
-                return ColorSonne;
-            case <= 0.5:
-                // Niesel
-                return ColorNiesel;
-            case <= 2.5:
-                // Regen
-                return CalcGradientColor(ColorTranslator.FromHtml("#" + ColorNiesel), 0.5,
-                    ColorTranslator.FromHtml("#" + ColorRegen),
-                    2.5, value);
-            case <= 5:
-                // Gewitter
-                return CalcGradientColor(ColorTranslator.FromHtml("#" + ColorRegen), 2.5,
-                    ColorTranslator.FromHtml("#" + ColorGewitter),
-                    5, value);
-            case <= 10:
-                // Hamburger Wetter
-                return CalcGradientColor(ColorTranslator.FromHtml("#" + ColorGewitter), 5,
-                    ColorTranslator.FromHtml("#" + ColorHamburgerWetter),
-                    10, value);
-            default:
+                return _config.Wled.Colors.First(q => q.RainAmount == 0).ColorCode;
+        }
+
+        var orderedColors = _config.Wled.Colors.OrderBy(q => q.RainAmount).ToList();
+        for (var colorIndex = 1; colorIndex < _config.Wled.Colors.Count; colorIndex++)
+        {
+            var upperColor = orderedColors.ElementAt(colorIndex);
+            var lowerColor = orderedColors.ElementAt(colorIndex - 1);
+            if (value <= upperColor.RainAmount)
             {
-                // Unwetter
-                if (value > 20) value = 20;
-                return CalcGradientColor(ColorTranslator.FromHtml("#" + ColorHamburgerWetter), 10,
-                    ColorTranslator.FromHtml("#" + ColorNope),
-                    20, value);
+                return CalcGradientColor(HexToColor(lowerColor.ColorCode),
+                    lowerColor.RainAmount, HexToColor(upperColor.ColorCode),
+                    upperColor.RainAmount, value);
             }
         }
+
+        return _config.Wled.Colors.OrderBy(q => q.RainAmount).Last().ColorCode;
     }
 
 
@@ -159,9 +149,13 @@ public class Wled
             payload += "\"" + color + "\",";
         }
 
+        if (aggreatedValues.Select(q => q.Value).Sum() <= 0.3)
+        {
+            Console.WriteLine("☀️ So Sunny!");
+        }
+
         payload = payload[..^1];
         payload += "]}}\"";
         await PostPayload(payload);
-
     }
 }

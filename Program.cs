@@ -15,7 +15,11 @@ internal static class Program
     private static T FromJson<T>(string filename)
     {
         var json = File.ReadAllText(filename);
-        return JsonSerializer.Deserialize<T>(json) ?? throw new InvalidOperationException($"Cannot deserialize '{filename}'");
+        var options = new JsonSerializerOptions
+        {
+            ReadCommentHandling = JsonCommentHandling.Skip
+        };
+        return JsonSerializer.Deserialize<T>(json, options) ?? throw new InvalidOperationException($"Cannot deserialize '{filename}'");
     }
     
     private static ServiceProvider CreateServiceProvider()
