@@ -1,10 +1,18 @@
 
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
 
 namespace GassiMeter;
 
 public class Rest
 {
+   private readonly ILogger<Rest> _logger;
+
+   public Rest(ILogger<Rest> logger)
+   {
+      _logger = logger;
+   }
+
    public async Task<T?> Get<T>(string url, string? bearer=null)
    {
       try
@@ -17,7 +25,7 @@ public class Rest
       }
       catch (Exception e)
       {
-         Console.WriteLine(e);
+         _logger.LogError(e, "HTTP request failed for URL: {Url}", url);
          return default;
       }
    }
