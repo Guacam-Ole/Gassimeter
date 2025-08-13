@@ -77,6 +77,8 @@ The application uses the OpenWeather API to fetch hourly rain forecasts. The fre
 
 ## Getting Started
 
+### Option 1: Running with .NET
+
 1. Clone the repository
 2. Install .NET 9.0 SDK
 3. Configure `config.json` with your location and device settings
@@ -89,6 +91,46 @@ The application uses the OpenWeather API to fetch hourly rain forecasts. The fre
 dotnet build
 dotnet run
 ```
+
+### Option 2: Running with Docker
+
+1. Clone the repository
+2. Configure `config.json` and `secrets.json` on your host machine
+3. Build the Docker image:
+
+```bash
+docker build -t gassimeter .
+```
+
+4. Run the container with volume mounts for configuration:
+
+```bash
+docker run -d \
+  --name gassimeter \
+  -v /path/to/your/config.json:/app/config.json \
+  -v /path/to/your/secrets.json:/app/secrets.json \
+  gassimeter
+```
+
+Replace `/path/to/your/` with the actual paths to your configuration files on the host system.
+
+#### Docker Volume Configuration
+
+The application requires two configuration files that should be mounted as volumes:
+
+- **config.json**: Application settings including weather location, WLED device URL, and color mappings
+- **secrets.json**: API keys and sensitive credentials
+
+Example with absolute paths:
+```bash
+docker run -d \
+  --name gassimeter \
+  -v /home/user/gassimeter/config.json:/app/config.json \
+  -v /home/user/gassimeter/secrets.json:/app/secrets.json \
+  gassimeter
+```
+
+This approach keeps your configuration and secrets outside the container, making it easy to update settings without rebuilding the image.
 
 ## Home Assistant Integration
 

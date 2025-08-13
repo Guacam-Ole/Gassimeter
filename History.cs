@@ -20,18 +20,23 @@ public class History
     public void AddHistoryData(DateTime time, double value)
     {
         if (HistoryData.Exists(q => q.Time == TimeOnly.FromDateTime(time))) return;
-        HistoryData.Add(new HistoryEntry
-            { Date = DateOnly.FromDateTime(time), Time = TimeOnly.FromDateTime(time), Value = value });
+        HistoryData.Add(
+            new HistoryEntry
+            {
+                Date = DateOnly.FromDateTime(time), Time = TimeOnly.FromDateTime(time), Value = value
+            });
     }
 
     public Dictionary<int, double> GetHistoryData(int minutes)
     {
         DeleteHistoryOlderThan(minutes);
-        var currentTime = TimeOnly.FromDateTime(DateTime.Now);
+        var now = DateTime.Now;
         Dictionary<int, double> values = [];
         for (var i = -1; i >= -minutes; i--)
         {
-            var entry = HistoryData.FirstOrDefault(q => q.Time == currentTime.AddMinutes(minutes));
+            var historyTime = now.AddMinutes(i);
+            var entry = HistoryData.FirstOrDefault(q =>
+                q.Time.Minute == historyTime.Hour && q.Time.Minute == historyTime.Minute);
             values.Add(i, entry?.Value ?? -1);
         }
 

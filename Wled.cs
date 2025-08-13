@@ -51,7 +51,7 @@ public class Wled
 
     private async Task PostPayload(string payload)
     {
-        // TODO: REST
+        // TODO: EST
         // TODO: Return
         using var client = new HttpClient();
         var content = new StringContent(payload, Encoding.UTF8, "application/json");
