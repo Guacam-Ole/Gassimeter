@@ -36,7 +36,7 @@ public class History
         {
             var historyTime = now.AddMinutes(i);
             var entry = HistoryData.FirstOrDefault(q =>
-                q.Time.Minute == historyTime.Hour && q.Time.Minute == historyTime.Minute);
+                q.Time.Hour == historyTime.Hour && q.Time.Minute == historyTime.Minute);
             values.Add(i, entry?.Value ?? -1);
         }
 
