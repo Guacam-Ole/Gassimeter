@@ -18,6 +18,11 @@ The application runs continuously, checking conditions at configurable intervals
 - OpenWeather API key (free tier available)
 - Home Assistant instance (optional)
 
+## 3D Printed files
+For the legend (show what color means what) and scale I created a few STL files as well as the Blend File (for Blender) so you can change the text if you decide to use my design:
+
+https://www.thingiverse.com/thing:7117297
+
 ## Configuration
 
 ### config.json
