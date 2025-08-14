@@ -50,7 +50,7 @@ The application includes a `config.json` file that needs to be configured with y
   - **Required values**: Must include entries for `RainAmount: -1` (missing data) and `RainAmount: 0` (no rain)
   - Colors are interpolated between defined values for smooth gradients
   - Example color scheme:
-    - `-1`: "000000" (Black - missing historical data)
+    - `-1`: "000000" (LEDs off - missing historical data)
     - `0`: "32FF32" (Green - sunny/no rain)
     - `0.5`: "00B4FF" (Light Blue - drizzle)
     - `2.5`: "0032C8" (Blue - light rain)
