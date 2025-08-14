@@ -30,7 +30,8 @@ public class Looper
 
         var allEntries = new Dictionary<int, double>();
         var state = await _wled.GetStatus<WledEntity>();
-        _logger.LogInformation("💡 WLED Status: IsOn:'{IsOn}', Brightness: '{Brightness}'", state?.StateEntity.IsOn, state?.StateEntity.Brightness);
+        _logger.LogInformation("💡 WLED Status: IsOn:'{IsOn}', Brightness: '{Brightness}'", state?.StateEntity.IsOn,
+            state?.StateEntity.Brightness);
         for (var i = 0; i <= 60; i++)
         {
             double value = i % 10 == 0 ? 10 : 0;
@@ -64,7 +65,8 @@ public class Looper
         if (hassSensor != null)
         {
             var hassSensorState = await _hass.GetSensorState(hassSensor);
-            _logger.LogInformation("🏠 Home Assistant sensor '{Sensor}' state: '{State}', required: '{Required}'", hassSensor, hassSensorState, _config.Hass?.RequiredState);
+            _logger.LogInformation("🏠 Home Assistant sensor '{Sensor}' state: '{State}', required: '{Required}'",
+                hassSensor, hassSensorState, _config.Hass?.RequiredState);
             if (hassSensorState != _config.Hass?.RequiredState)
             {
                 _logger.LogWarning("❌ Wrong state for Home assistant Sensor '{Sensor}'. Will not continue", hassSensor);
@@ -75,22 +77,27 @@ public class Looper
         // Check Time:
         if (_config.OperationTime != null)
         {
-            if (DateTime.Now < DateTime.Today.Add(_config.OperationTime.FromTime))
+            var now = DateTime.Now.ToLocalTime();
+            var today = DateTime.Today.ToLocalTime();
+            if (now < today.Add(_config.OperationTime.FromTime))
             {
-                _logger.LogInformation("😴 Still too early. Will not start before '{FromTime}'", _config.OperationTime.FromTime);
+                _logger.LogInformation("🛌 Still too early. Will not start before '{FromTime}'. It is now '{now}'",
+                    _config.OperationTime.FromTime, now);
                 await TurnWledOffIfOn();
                 return;
             }
 
-            if (DateTime.Now > DateTime.Today.Add(_config.OperationTime.ToTime))
+            if (now > today.Add(_config.OperationTime.ToTime))
             {
-                _logger.LogInformation("🌙 Too late. Will not start before '{FromTime}' tomorrow", _config.OperationTime.FromTime);
+                _logger.LogInformation("🌙 Too late. Will not start before '{FromTime}' tomorrow. It is now '{now}",
+                    _config.OperationTime.FromTime, now);
                 await TurnWledOffIfOn();
                 return;
             }
         }
 
-        _logger.LogInformation("🌤️ Fetching weather data for coordinates: '{Latitude}', '{Longitude}'", _config.Weather.Latitude, _config.Weather.Longitude);
+        _logger.LogInformation("🌤️ Fetching weather data for coordinates: '{Latitude}', '{Longitude}'",
+            _config.Weather.Latitude, _config.Weather.Longitude);
         var minuteValues = await _openWeather.GetMinuteValues();
         if (minuteValues?.Minutely == null)
         {
