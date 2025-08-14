@@ -76,9 +76,9 @@ The application includes a `config.json` file that needs to be configured with y
 
 The application uses the OpenWeather API to fetch hourly rain forecasts. The free tier includes:
 - **1,000 API calls per day**
-- Rate limit considerations for continuous operation
 
-**Important**: With the default 2-minute interval, running 24/7 will make approximately 720 calls per day, which is within the free tier limit. However, to stay well within limits and account for any retries or additional calls, consider using an interval of 2 minutes or higher.
+**Important**: With the default 2-minute interval, running 24/7 will make approximately 720 calls per day, which is within the free tier limit. If you want to reduce the interval make sure you set a limit at WeatherApi. One Call per minute is **above** the free tier when running 24h. 
+
 
 ## Getting Started
 
