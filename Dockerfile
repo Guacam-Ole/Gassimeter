@@ -15,5 +15,8 @@ FROM mcr.microsoft.com/dotnet/runtime:9.0
 WORKDIR /app
 COPY --from=publish /app/publish .
 
+ENV TZ=Europe/Berlin
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 # Set the entry point
 ENTRYPOINT ["dotnet", "GassiMeter.dll"]
