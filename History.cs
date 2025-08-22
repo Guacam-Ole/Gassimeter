@@ -11,7 +11,7 @@ public class History
 {
     private static readonly List<HistoryEntry> HistoryData = [];
 
-    private void DeleteHistoryOlderThan(int minutes)
+    private static void DeleteHistoryOlderThan(int minutes)
     {
         HistoryData.RemoveAll(q => q.Date != DateOnly.FromDateTime(DateTime.Now));
         HistoryData.RemoveAll(q => q.Time < TimeOnly.FromDateTime(DateTime.Now).AddMinutes(-minutes));
@@ -27,7 +27,7 @@ public class History
             });
     }
 
-    public Dictionary<int, double> GetHistoryData(int minutes)
+    public static Dictionary<int, double> GetHistoryData(int minutes)
     {
         DeleteHistoryOlderThan(minutes);
         var now = DateTime.Now;

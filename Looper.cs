@@ -98,29 +98,29 @@ public class Looper
 
         _logger.LogInformation("🌤️ Fetching weather data for coordinates: '{Latitude}', '{Longitude}'",
             _config.Weather.Latitude, _config.Weather.Longitude);
-        var minuteValues = await _openWeather.GetMinuteValues();
-        if (minuteValues?.Minutely == null)
+        var liveValues = await _openWeather.GetMinuteValues();
+        if (liveValues?.Minutely == null)
         {
             _logger.LogWarning("🌦️ Could not receive weather data. Exiting");
             return;
         }
 
         // Store in History for next run
-        minuteValues.Minutely.ForEach(q => _history.AddHistoryData(q.Time, q.Rain));
+        liveValues.Minutely.ForEach(q => _history.AddHistoryData(q.Time, q.Rain));
 
         // Combine history and livedata:
-        var allEntries = _history.GetHistoryData(_config.Wled.Start * _config.Wled.MinutesPerLed);
-        foreach (var minuteValue in minuteValues.Minutely)
+        var liveAndHistoryValues = History.GetHistoryData((_config.Wled.Start+1) * _config.Wled.MinutesPerLed);
+        foreach (var minuteValue in liveValues.Minutely)
         {
             var minute = (int)(minuteValue.Time - DateTime.Now).TotalMinutes;
             if (minute < 0) continue;
-            allEntries.TryAdd(minute, minuteValue.Rain);
+            liveAndHistoryValues.TryAdd(minute, minuteValue.Rain);
         }
 
         // send to Wled
-        _logger.LogInformation("🎨 Updating '{Count}' LED values", allEntries.Count);
+        _logger.LogInformation("🎨 Updating '{Count}' LED values", liveAndHistoryValues.Count);
         await _wled.TurnOn();
-        await _wled.SetLedsByValueJson(allEntries);
+        await _wled.SetLedsByValueJson(liveAndHistoryValues);
         _logger.LogInformation("✨ LED update complete!");
     }
 

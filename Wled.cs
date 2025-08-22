@@ -130,31 +130,42 @@ public class Wled
 
     public async Task SetLedsByValueJson(Dictionary<int, double> minuteValues)
     {
-        // init aggregate:
-        Dictionary<int, double> aggreatedValues = new();
+        _logger.LogDebug("Sending values to LED: '{vals}'",string.Join(',', minuteValues));
+        Dictionary<int, double> aggregatedValues = new();
         for (var i = 0; i <= _config.Wled.Count; i++)
         {
-            aggreatedValues[i] = 0;
+            aggregatedValues[i] = 0;
         }
 
-        // minutevalues to ledvalues:
         foreach (var minuteValue in minuteValues)
         {
             var led = GetLedFromMinute(minuteValue.Key);
             if (led < 0 || led > _config.Wled.Count) continue; // should never happen
-            aggreatedValues[led] += minuteValue.Value;
+            aggregatedValues[led] += minuteValue.Value;
         }
 
-        string payload = "{\"seg\":{\"i\":[";
-        for (int i = 0; i < aggreatedValues.Count; i++)
+        var payload = "{\"seg\":{\"i\":[";
+        for (var i = 0; i < aggregatedValues.Count; i++)
         {
-            var color = GetRgbColorByValue(aggreatedValues[i]);
+            var color = GetRgbColorByValue(aggregatedValues[i]);
             payload += "\"" + color + "\",";
         }
 
-        if (aggreatedValues.Select(q => q.Value).Sum() <= 0.3)
+        var rainSum = aggregatedValues.Select(q => q.Value).Sum();
+        switch (rainSum)
         {
-            _logger.LogInformation("☀️ So Sunny!");
+            case <= 0.3:
+                _logger.LogInformation("☀️ So Sunny!");
+                break;
+            case <= 5:
+                _logger.LogInformation("☔️ A bit rainy");
+                break;
+            case <= 10:
+                _logger.LogInformation("⛈️ Bad weather");
+                break;
+            default:
+                _logger.LogInformation("🏡 Better stay at home");
+                break;
         }
 
         payload = payload[..^1];
