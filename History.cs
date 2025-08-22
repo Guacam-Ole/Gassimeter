@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace GassiMeter;
 
 public class HistoryEntry
@@ -9,6 +11,13 @@ public class HistoryEntry
 
 public class History
 {
+    private readonly ILogger<History> _logger;
+
+    public History(ILogger<History> logger)
+    {
+        _logger = logger;
+    }
+
     private static readonly List<HistoryEntry> HistoryData = [];
 
     private static void DeleteHistoryOlderThan(int minutes)
@@ -25,9 +34,10 @@ public class History
             {
                 Date = DateOnly.FromDateTime(time), Time = TimeOnly.FromDateTime(time), Value = value
             });
+        _logger.LogDebug("Added history value '{Value}' on '{Time}'", value, time);
     }
 
-    public static Dictionary<int, double> GetHistoryData(int minutes)
+    public Dictionary<int, double> GetHistoryData(int minutes)
     {
         DeleteHistoryOlderThan(minutes);
         var now = DateTime.Now;
@@ -37,6 +47,7 @@ public class History
             var historyTime = now.AddMinutes(i);
             var entry = HistoryData.FirstOrDefault(q =>
                 q.Time.Hour == historyTime.Hour && q.Time.Minute == historyTime.Minute);
+            _logger.LogDebug("Added history to Dict '{Count}':'{Value}'", i, entry);
             values.Add(i, entry?.Value ?? -1);
         }
 

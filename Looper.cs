@@ -109,12 +109,13 @@ public class Looper
         liveValues.Minutely.ForEach(q => _history.AddHistoryData(q.Time, q.Rain));
 
         // Combine history and livedata:
-        var liveAndHistoryValues = History.GetHistoryData((_config.Wled.Start+1) * _config.Wled.MinutesPerLed);
+        var liveAndHistoryValues = _history.GetHistoryData(_config.Wled.Start * _config.Wled.MinutesPerLed);
         foreach (var minuteValue in liveValues.Minutely)
         {
             var minute = (int)(minuteValue.Time - DateTime.Now).TotalMinutes;
             if (minute < 0) continue;
             liveAndHistoryValues.TryAdd(minute, minuteValue.Rain);
+            _logger.LogDebug("Added Livadata: {Minute}:{Value}", minute, minuteValue.Rain);
         }
 
         // send to Wled
