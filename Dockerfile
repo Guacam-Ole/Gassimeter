@@ -1,21 +1,22 @@
-# Use the .NET 9.0 SDK for publishing
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS publish
-WORKDIR /src
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+WORKDIR /App
 
-# Copy the project file and restore dependencies
-COPY GassiMeter.csproj .
+# Copy everything
+COPY . ./
+
+# Restore as distinct layers
+
 RUN dotnet restore
+# Build and publish a release
+RUN dotnet publish -f net8.0 -c Release -o out
 
-# Copy the source code and publish the application
-COPY . .
-RUN dotnet publish -c Release -o /app/publish
+# Build runtime image
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /App
+COPY --from=build-env /App/out .
 
-# Final stage with runtime
-WORKDIR /app
-COPY --from=publish /app/publish .
 
 ENV TZ=Europe/Berlin
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
-
-# Set the entry point
 ENTRYPOINT ["dotnet", "GassiMeter.dll"]
+
