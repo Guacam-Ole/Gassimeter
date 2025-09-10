@@ -12,31 +12,38 @@
     "Colors": [
       {
         "ColorCode": "000000", // Black - missing data
-        "RainAmount": -1
+        "RainAmount": -1,
+        "LogUnicodeValue": " "
       },
       {
         "ColorCode": "32FF32", // Green - sunny
-        "RainAmount": 0
+        "RainAmount": 0,
+        "LogUnicodeValue": " "
       },
       {
         "ColorCode": "00B4FF", // Light Blue - drizzle
-        "RainAmount": 0.5
+        "RainAmount": 0.5,
+        "LogUnicodeValue": "▁"
       },
       {
         "ColorCode": "0032C8", // Blue - light rain
-        "RainAmount": 2.5
+        "RainAmount": 2.5,
+        "LogUnicodeValue": "▃"
       },
       {
-        "ColorCode": "FF3296", // Pink - heavy rain
+        "ColorCode": "FF3296",
+        "LogUnicodeValue": "▅",// Pink - heavy rain
         "RainAmount": 5
       },
       {
         "ColorCode": "DC1414", // Red - very heavy rain
-        "RainAmount": 10
+        "RainAmount": 10,
+        "LogUnicodeValue": "▇"
       },
       {
         "ColorCode": "FFC800", // Orange - extreme weather
-        "RainAmount": 20
+        "RainAmount": 20,
+        "LogUnicodeValue": "█"
       }
     ]
   },

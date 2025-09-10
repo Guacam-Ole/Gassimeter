@@ -54,6 +54,10 @@ internal static class Program
             {
                 cfg.WriteTo.Console(new RenderedCompactJsonFormatter());
             }
+            else
+            {
+                cfg.WriteTo.Console();
+            }
         });
         
         services.AddSingleton(FromJson<Config>("config.json")); 

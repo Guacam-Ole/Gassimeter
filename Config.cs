@@ -20,7 +20,6 @@ public class ConfigWeather
     public double Longitude { get; set; }
     public double Latitude { get; set; }
     public TimeSpan Delay { get; set; } = new TimeSpan(0, 2, 0);
-    
 }
 
 public class ConfigHass
@@ -41,6 +40,7 @@ public class ConfigWled
 
 public class ConfigColors
 {
+    public char? LogUnicodeValue { get; set; }
     public required string ColorCode { get; set; }
     public double RainAmount { get; set; }
 }

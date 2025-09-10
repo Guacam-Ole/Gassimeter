@@ -100,15 +100,16 @@ public class Wled
         return red.ToString("X2") + green.ToString("X2") + blue.ToString("X2");
     }
 
-    private string GetRgbColorByValue(double value)
+    private (string, char?) GetRgbColorByValue(double value)
     {
         switch (value)
         {
             case < 0:
                 // Missing history value
-                return "000000";
+                return ("000000", ' ');
             case 0:
-                return _config.Wled.Colors.First(q => q.RainAmount == 0).ColorCode;
+                var colorConfig = _config.Wled.Colors.First(q => q.RainAmount == 0);
+                return (colorConfig.ColorCode, colorConfig.LogUnicodeValue);
         }
 
         var orderedColors = _config.Wled.Colors.OrderBy(q => q.RainAmount).ToList();
@@ -116,21 +117,22 @@ public class Wled
         {
             var upperColor = orderedColors.ElementAt(colorIndex);
             var lowerColor = orderedColors.ElementAt(colorIndex - 1);
-            if (value <= upperColor.RainAmount)
-            {
-                return CalcGradientColor(HexToColor(lowerColor.ColorCode),
-                    lowerColor.RainAmount, HexToColor(upperColor.ColorCode),
-                    upperColor.RainAmount, value);
-            }
+            if (!(value <= upperColor.RainAmount)) continue;
+            var gradientColor = CalcGradientColor(HexToColor(lowerColor.ColorCode),
+                lowerColor.RainAmount, HexToColor(upperColor.ColorCode),
+                upperColor.RainAmount, value);
+            var isNearLower = (value - lowerColor.RainAmount) < (upperColor.RainAmount - value);
+            return (gradientColor, isNearLower ? lowerColor.LogUnicodeValue : upperColor.LogUnicodeValue);
         }
 
-        return _config.Wled.Colors.OrderBy(q => q.RainAmount).Last().ColorCode;
+        var lastConfig = _config.Wled.Colors.OrderBy(q => q.RainAmount).Last();
+        return (lastConfig.ColorCode, lastConfig.LogUnicodeValue);
     }
 
 
     public async Task SetLedsByValueJson(Dictionary<int, double> minuteValues)
     {
-        _logger.LogDebug("Sending values to LED: '{vals}'",string.Join(',', minuteValues));
+        _logger.LogDebug("Sending values to LED: '{vals}'", string.Join(',', minuteValues));
         Dictionary<int, double> aggregatedValues = new();
         for (var i = 0; i <= _config.Wled.Count; i++)
         {
@@ -144,28 +146,25 @@ public class Wled
             aggregatedValues[led] += minuteValue.Value;
         }
 
+        var outputRain = string.Empty;
         var payload = "{\"seg\":{\"i\":[";
         for (var i = 0; i < aggregatedValues.Count; i++)
         {
-            var color = GetRgbColorByValue(aggregatedValues[i]);
+            var (color, logChar) = GetRgbColorByValue(aggregatedValues[i]);
             payload += "\"" + color + "\",";
+
+            outputRain += logChar ?? ' ';
         }
 
-        var rainSum = aggregatedValues.Select(q => q.Value).Sum();
-        switch (rainSum)
+
+        var rainSum = aggregatedValues.Where(q => q.Value >= 0).Select(q => q.Value).Sum();
+        if (rainSum <= 0.3)
         {
-            case <= 0.3:
-                _logger.LogInformation("☀️ So Sunny!");
-                break;
-            case <= 5:
-                _logger.LogInformation("☔️ A bit rainy");
-                break;
-            case <= 10:
-                _logger.LogInformation("⛈️ Bad weather");
-                break;
-            default:
-                _logger.LogInformation("🏡 Better stay at home");
-                break;
+            _logger.LogInformation("☀️ So Sunny!");
+        }
+        else
+        {
+            _logger.LogDebug("Forecast: '{Forecast}'", outputRain);
         }
 
         payload = payload[..^1];
