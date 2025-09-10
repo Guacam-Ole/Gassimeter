@@ -23,7 +23,7 @@ public class History
     private static void DeleteHistoryOlderThan(int minutes)
     {
         HistoryData.RemoveAll(q => q.Date != DateOnly.FromDateTime(DateTime.Now));
-        HistoryData.RemoveAll(q => q.Time < TimeOnly.FromDateTime(DateTime.Now).AddMinutes(-minutes));
+        HistoryData.RemoveAll(q => q.Time < TimeOnly.FromDateTime(DateTime.Now).AddMinutes(-(minutes+1)));
     }
 
     public void AddHistoryData(DateTime time, double value)
