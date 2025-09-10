@@ -115,7 +115,7 @@ public class Looper
             var minute = (int)(minuteValue.Time - DateTime.Now).TotalMinutes;
             if (minute < 0) continue;
             liveAndHistoryValues.TryAdd(minute, minuteValue.Rain);
-            _logger.LogDebug("Added Livadata: {Minute}:{Value}", minute, minuteValue.Rain);
+            _logger.LogDebug("Added Livedata: {Minute}:{Value}", minute, minuteValue.Rain);
         }
 
         // send to Wled
