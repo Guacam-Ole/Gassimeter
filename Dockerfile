@@ -1,5 +1,5 @@
 # Use the official .NET 9.0 runtime image
-FROM mcr.microsoft.com/dotnet/runtime:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 WORKDIR /app
 
 # Use the .NET 9.0 SDK for building
