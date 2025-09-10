@@ -89,7 +89,7 @@ public class Looper
 
             if (now > today.Add(_config.OperationTime.ToTime))
             {
-                _logger.LogInformation("🌙 Too late. Will not start before '{FromTime}' tomorrow. It is now '{now}",
+                _logger.LogInformation("🌙 Too late. Will not start before '{FromTime}' tomorrow. It is now '{now}'",
                     _config.OperationTime.FromTime, now);
                 await TurnWledOffIfOn();
                 return;
