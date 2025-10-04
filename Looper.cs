@@ -136,12 +136,15 @@ public class Looper
             {
                 _logger.LogInformation("🔄 Starting Loop run at '{Time}'", DateTime.Now);
                 await DisplayData();
-                Thread.Sleep(_config.Weather.Delay);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "💥 Error in main loop");
-                // Let's hope this fixes itself in 2 min (sometimes wled gets issues)
+                // Let's hope this fixes itself in a few minutes
+            }
+            finally
+            {
+                Thread.Sleep(_config.Weather.Delay);
             }
         }
     }
