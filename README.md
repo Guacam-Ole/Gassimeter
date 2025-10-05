@@ -163,3 +163,6 @@ To use the Home Assistant integration:
 ## License
 
 This project is open source. Please check the LICENSE file for details.
+
+## Gassimeter in Action
+![Picture of an LED-stripe above a door in displaying the amount of rain in different colors](pix/gassimeter.png "Gassimeter in Action")
