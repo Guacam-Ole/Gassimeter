@@ -65,7 +65,7 @@ public class Looper
         if (hassSensor != null)
         {
             var hassSensorState = await _hass.GetSensorState(hassSensor);
-            _logger.LogInformation("🏠 Home Assistant sensor '{Sensor}' state: '{State}', required: '{Required}'",
+            _logger.LogDebug("🏠 Home Assistant sensor '{Sensor}' state: '{State}', required: '{Required}'",
                 hassSensor, hassSensorState, _config.Hass?.RequiredState);
             if (hassSensorState != _config.Hass?.RequiredState)
             {
@@ -115,14 +115,13 @@ public class Looper
             var minute = (int)(minuteValue.Time - DateTime.Now).TotalMinutes;
             if (minute < 0) continue;
             liveAndHistoryValues.TryAdd(minute, minuteValue.Rain);
-            _logger.LogDebug("Added Livedata: {Minute}:{Value}", minute, minuteValue.Rain);
         }
 
         // send to Wled
-        _logger.LogInformation("🎨 Updating '{Count}' LED values", liveAndHistoryValues.Count);
+        _logger.LogDebug("🎨 Updating '{Count}' LED values", liveAndHistoryValues.Count);
         await _wled.TurnOn();
         await _wled.SetLedsByValueJson(liveAndHistoryValues);
-        _logger.LogInformation("✨ LED update complete!");
+        _logger.LogDebug("✨ LED update complete!");
     }
 
     public async Task Loop()
@@ -134,7 +133,7 @@ public class Looper
         {
             try
             {
-                _logger.LogInformation("🔄 Starting Loop run at '{Time}'", DateTime.Now);
+                _logger.LogDebug("🔄 Starting Loop run at '{Time}'", DateTime.Now);
                 await DisplayData();
             }
             catch (Exception e)
