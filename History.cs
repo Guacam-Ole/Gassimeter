@@ -34,7 +34,6 @@ public class History
             {
                 Date = DateOnly.FromDateTime(time), Time = TimeOnly.FromDateTime(time), Value = value
             });
-        _logger.LogDebug("Added history value '{Value}' on '{Time}'", value, time);
     }
 
     public Dictionary<int, double> GetHistoryData(int minutes)
@@ -47,7 +46,6 @@ public class History
             var historyTime = now.AddMinutes(i);
             var entry = HistoryData.FirstOrDefault(q =>
                 q.Time.Hour == historyTime.Hour && q.Time.Minute == historyTime.Minute);
-            _logger.LogDebug("Added history to Dict '{Count}':'{Value}'", i, entry);
             values.Add(i, entry?.Value ?? -1);
         }
 
