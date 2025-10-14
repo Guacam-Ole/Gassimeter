@@ -132,7 +132,6 @@ public class Wled
 
     public async Task SetLedsByValueJson(Dictionary<int, double> minuteValues)
     {
-        _logger.LogDebug("Sending values to LED: '{vals}'", string.Join(',', minuteValues));
         Dictionary<int, double> aggregatedValues = new();
         for (var i = 0; i <= _config.Wled.Count; i++)
         {
