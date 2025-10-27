@@ -60,7 +60,7 @@ public class Looper
 
     private void SleepUntil(TimeSpan time) {
         var targetDate=DateTime.Today.AddDays(1).Add(time);
-        var delay=targetDate-now;
+        var delay=targetDate-DateTime.Now;
         _logger.LogInformation("🛏️ Going to sleep for '{Timespan}'",delay);
         System.Threading.Thread.Sleep(delay);
         _logger.LogInformation("🌅 Awake again");
