@@ -19,8 +19,7 @@ public class Hass
     }
 
     public async Task<string?> GetSensorState(string sensor)
-    {
-        _logger.LogInformation("🏠 Requesting Home Assistant sensor data for '{Sensor}'", sensor);
+    {        
         var url = $"https://hass.oles.cloud/api/states/{sensor}";
         var entity = await _rest.Get<HassEntity>(url, _secrets.HassBearer);
         if (entity == null)
@@ -29,9 +28,4 @@ public class Hass
         }
         return entity == null ? null : entity.State;
     }
-
-
-
-    
-    
 }

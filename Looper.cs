@@ -104,9 +104,7 @@ public class Looper
                 return;
             }
         }
-
-        _logger.LogDebug("🌤️ Fetching weather data for coordinates: '{Latitude}', '{Longitude}'",
-            _config.Weather.Latitude, _config.Weather.Longitude);
+        
         var liveValues = await _openWeather.GetMinuteValues();
         if (liveValues?.Minutely == null)
         {

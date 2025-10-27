@@ -20,8 +20,7 @@ public class Wled
     }
 
     public async Task TurnOn()
-    {
-        _logger.LogInformation("💡 Turning WLED on with brightness '{Brightness}'", _config.Wled.Brightness);
+    {        
         var payload = "{\"on\":true,\"bri\":" + _config.Wled.Brightness + "} ";
         await PostPayload(payload);
     }

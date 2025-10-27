@@ -21,14 +21,13 @@ public class OpenWeather
     public async Task<WeatherEntity?> GetMinuteValues()
     {
         var latitude = _config.Weather.Latitude;
-        var longitude =  _config.Weather.Longitude;
+        var longjitude =  _config.Weather.Longitude;
         
         var url=$"https://api.openweathermap.org/data/3.0/onecall?lat={latitude}&lon={longitude}&exclude=hourly,daily,alerts&appid={_secrets.WeatherApiKey}";
         var result= await _rest.Get<WeatherEntity>(url);
         
         if (result?.Minutely != null)
-        {
-            _logger.LogInformation("☁️ Successfully fetched '{Count}' minute weather forecasts", result.Minutely.Count);
+        {            
             result.Minutely.ForEach(q=>q.Time=q.TimeStamp.ToDateTime());
         }
         else
