@@ -58,15 +58,21 @@ public class Looper
         }
     }
 
+    private void SleepUntil(TimeSpan time) {
+        var targetDate=DateTime.Today.AddDays(1).Add(time);
+        var delay=targetDate-now;
+        _logger.LogInformation("🛏️ Going to sleep for '{Timespan}'",delay);
+        System.Threading.Thread.Sleep(delay);
+        _logger.LogInformation("🌅 Awake again");
+    }
+
     private async Task DisplayData()
     {
         // Check if 3D printer is running:
         var hassSensor = _config.Hass?.Sensor;
         if (hassSensor != null)
         {
-            var hassSensorState = await _hass.GetSensorState(hassSensor);
-            _logger.LogDebug("🏠 Home Assistant sensor '{Sensor}' state: '{State}', required: '{Required}'",
-                hassSensor, hassSensorState, _config.Hass?.RequiredState);
+            var hassSensorState = await _hass.GetSensorState(hassSensor);            
             if (hassSensorState != _config.Hass?.RequiredState)
             {
                 _logger.LogWarning("❌ Wrong state for Home assistant Sensor '{Sensor}'. Will not continue", hassSensor);
@@ -81,9 +87,11 @@ public class Looper
             var today = DateTime.Today.ToLocalTime();
             if (now < today.Add(_config.OperationTime.FromTime))
             {
-                _logger.LogInformation("🛌 Still too early. Will not start before '{FromTime}'. It is now '{now}'",
+                _logger.LogInformation("🛌 Still too early. Will not start before '{FromTime}'. It is now '{now}'.",
                     _config.OperationTime.FromTime, now);
                 await TurnWledOffIfOn();
+                SleepUntil(_config.OperationTime.FromTime);
+                
                 return;
             }
 
@@ -92,11 +100,12 @@ public class Looper
                 _logger.LogInformation("🌙 Too late. Will not start before '{FromTime}' tomorrow. It is now '{now}'",
                     _config.OperationTime.FromTime, now);
                 await TurnWledOffIfOn();
+                SleepUntil(_config.OperationTime.FromTime);
                 return;
             }
         }
 
-        _logger.LogInformation("🌤️ Fetching weather data for coordinates: '{Latitude}', '{Longitude}'",
+        _logger.LogDebug("🌤️ Fetching weather data for coordinates: '{Latitude}', '{Longitude}'",
             _config.Weather.Latitude, _config.Weather.Longitude);
         var liveValues = await _openWeather.GetMinuteValues();
         if (liveValues?.Minutely == null)
@@ -117,11 +126,9 @@ public class Looper
             liveAndHistoryValues.TryAdd(minute, minuteValue.Rain);
         }
 
-        // send to Wled
-        _logger.LogDebug("🎨 Updating '{Count}' LED values", liveAndHistoryValues.Count);
+        // send to Wled     
         await _wled.TurnOn();
         await _wled.SetLedsByValueJson(liveAndHistoryValues);
-        _logger.LogDebug("✨ LED update complete!");
     }
 
     public async Task Loop()
@@ -132,8 +139,7 @@ public class Looper
         while (true)
         {
             try
-            {
-                _logger.LogDebug("🔄 Starting Loop run at '{Time}'", DateTime.Now);
+            {                
                 await DisplayData();
             }
             catch (Exception e)
