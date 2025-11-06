@@ -58,10 +58,12 @@ public class Looper
         }
     }
 
-    private void SleepUntil(TimeSpan time) {
-        var targetDate=DateTime.Today.AddDays(1).Add(time);
-        var delay=targetDate-DateTime.Now;
-        _logger.LogInformation("🛏️ Going to sleep for '{Timespan}'",delay);
+    private void SleepUntil(TimeSpan time)
+    {
+        var addDays = DateTime.Now.Hour > 20 ? 1 : 0;
+        var targetDate = DateTime.Today.AddDays(addDays).Add(time);
+        var delay = targetDate - DateTime.Now;
+        _logger.LogInformation("🛏️ Going to sleep for '{Timespan}'", delay);
         System.Threading.Thread.Sleep(delay);
         _logger.LogInformation("🌅 Awake again");
     }
@@ -72,7 +74,7 @@ public class Looper
         var hassSensor = _config.Hass?.Sensor;
         if (hassSensor != null)
         {
-            var hassSensorState = await _hass.GetSensorState(hassSensor);            
+            var hassSensorState = await _hass.GetSensorState(hassSensor);
             if (hassSensorState != _config.Hass?.RequiredState)
             {
                 _logger.LogWarning("❌ Wrong state for Home assistant Sensor '{Sensor}'. Will not continue", hassSensor);
@@ -91,7 +93,7 @@ public class Looper
                     _config.OperationTime.FromTime, now);
                 await TurnWledOffIfOn();
                 SleepUntil(_config.OperationTime.FromTime);
-                
+
                 return;
             }
 
@@ -104,7 +106,7 @@ public class Looper
                 return;
             }
         }
-        
+
         var liveValues = await _openWeather.GetMinuteValues();
         if (liveValues?.Minutely == null)
         {
@@ -137,7 +139,7 @@ public class Looper
         while (true)
         {
             try
-            {                
+            {
                 await DisplayData();
             }
             catch (Exception e)
