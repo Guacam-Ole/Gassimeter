@@ -134,7 +134,15 @@ public class Looper
     public async Task Loop()
     {
         _logger.LogInformation("🐕🦴️ Gassimeter started! 🌞");
-        await InitDisplay();
+        try
+        {
+            await InitDisplay();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed initializing display");
+            throw;
+        }
 
         while (true)
         {
